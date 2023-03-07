@@ -60,7 +60,7 @@ const DoctorProfile = ({ doctor }: DoctorProfileProps) => {
             <StyledInfoBox>
                 <Typography variant="h2" sx={{ fontSize: '48px' }}>{doctor?.name ?? 'Unknown'}</Typography>
                 <DoctorAddress address={doctor?.address ?? {}} />
-                <StyledButton variant="contained" onClick={handleOnClick} sx={{ alignSelf: 'flex-end' }} disabled={doctor?.opening_hours?.length <= 0 || !doctor.id}>Book now</StyledButton>
+                <StyledButton variant="contained" onClick={handleOnClick} sx={{ alignSelf: 'flex-end' }} disabled={!doctor.opening_hours || doctor?.opening_hours?.length <= 0 || !doctor.id}>Book now</StyledButton>
             </StyledInfoBox>
         </StyledCard>
     )
