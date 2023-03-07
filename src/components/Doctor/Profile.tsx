@@ -56,11 +56,11 @@ const DoctorProfile = ({ doctor }: DoctorProfileProps) => {
 
     return (
         <StyledCard>
-            <Avatar sx={{ width: 64, height: 64 }}>{doctor.name.charAt(0)}</Avatar>
+            <Avatar sx={{ width: 64, height: 64 }}>{doctor?.name?.charAt(0) ?? 'U'}</Avatar>
             <StyledInfoBox>
-                <Typography variant="h2" sx={{ fontSize: '48px' }}>{doctor.name}</Typography>
-                <DoctorAddress address={doctor.address} />
-                <StyledButton variant="contained" onClick={handleOnClick} sx={{ alignSelf: 'flex-end' }}>Book now</StyledButton>
+                <Typography variant="h2" sx={{ fontSize: '48px' }}>{doctor?.name ?? 'Unknown'}</Typography>
+                <DoctorAddress address={doctor?.address ?? {}} />
+                <StyledButton variant="contained" onClick={handleOnClick} sx={{ alignSelf: 'flex-end' }} disabled={!doctor.opening_hours || doctor?.opening_hours?.length <= 0 || !doctor.id}>Book now</StyledButton>
             </StyledInfoBox>
         </StyledCard>
     )

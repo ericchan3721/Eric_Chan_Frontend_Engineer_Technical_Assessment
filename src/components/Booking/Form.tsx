@@ -82,7 +82,7 @@ const BookingForm = ({
     
     const getTimeslots = useCallback(() => {
         const weekday = WEEKDAYS[date.day()];
-        return doctorAvailability?.find((opening: OpeningHour) => opening.day === weekday) ?? {};
+        return doctorAvailability?.find((opening: OpeningHour) => opening?.day === weekday) ?? {};
     }, []);
     
     const [availableTimeslots, setAvailableTimeslots] = useState<OpeningHour>(getTimeslots());
@@ -208,8 +208,8 @@ const BookingForm = ({
                         disablePast
                         shouldDisableDate={(date: any) => {
                             const weekday = WEEKDAYS[date?.day() ?? -1];
-                            const isClosed = doctorAvailability?.find((opening: OpeningHour) => opening.day === weekday).isClosed === true;
-                            return isClosed;
+                            const today =  doctorAvailability?.find((opening: OpeningHour) => opening?.day === weekday);
+                            return (!today || !today.start || !today.end || today.isClosed !== false);
                         }}
                         value={date}
                         onChange={(newValue: any) => {
@@ -219,8 +219,14 @@ const BookingForm = ({
                             //  reset selected timeslot
                             setTimeslot(0);
                             //  set available timeslots
-                            const timeslots = doctorAvailability?.find((opening: OpeningHour) => opening.day === weekday);
-                            setAvailableTimeslots(timeslots);
+                            const timeslots = doctorAvailability?.find((opening: OpeningHour) => opening?.day === weekday) ?? [];
+                            const isToday = dayjs(new Date()).date() === newValue.date();
+                            if (isToday) {
+                                //  force getActualTimeslots when selecedDate = today 
+                                setAvailableTimeslots(getTimeslots());
+                            } else {
+                                setAvailableTimeslots(timeslots);
+                            }
                         }}
                     />
                     <StyledFormControl>
