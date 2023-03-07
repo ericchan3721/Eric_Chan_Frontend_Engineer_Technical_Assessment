@@ -129,6 +129,7 @@ const BookingForm = ({
                             isOpen: true,
                             severity: 'error',
                             title: 'Failed to place your booking!',
+                            message: undefined,
                         });
                     })
         } finally {
