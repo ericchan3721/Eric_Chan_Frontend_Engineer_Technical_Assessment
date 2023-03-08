@@ -80,12 +80,12 @@ const BookingForm = ({
     const [patientName, setPatientName] = useState<string>('');
     const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
     
-    const getTimeslots = useCallback(() => {
+    const getTimeslots = () => {
         const weekday = WEEKDAYS[date.day()];
-        return doctorAvailability?.find((opening: OpeningHour) => opening?.day === weekday) ?? {};
-    }, []);
+        return doctorAvailability?.find((opening: OpeningHour) => opening?.day === weekday) ?? null;
+    };
     
-    const [availableTimeslots, setAvailableTimeslots] = useState<OpeningHour>(getTimeslots());
+    const [availableTimeslots, setAvailableTimeslots] = useState<OpeningHour | null>(null);
 
     const openAlert = (options: SetAlertBoxOptions) => {
         setTimeout(() => {
@@ -165,7 +165,7 @@ const BookingForm = ({
 
     useEffect(() => {
         resetInputs();
-    }, []);
+    }, [doctorAvailability]);
 
     const handleClose = () => {
         if (onClose) onClose();
@@ -177,12 +177,12 @@ const BookingForm = ({
         const timeslots = [];
         //  checking selected date is today?
         const today = dayjs(new Date());
-        const defaultStartTime = parseFloat(availableTimeslots?.start);
+        const defaultStartTime = parseFloat(availableTimeslots?.start ?? '0');
         //  if date is identical, use Max of currentHr & API startTime, since can't choose any past timeslots
-        const startTime = today.date() === date.date() ? Math.max(today.hour(), defaultStartTime) : defaultStartTime;
-        for (let i = startTime; i < parseFloat(availableTimeslots?.end); i++) {
+        const startTime = today.date() === date.date() ? Math.max(today.hour() + (defaultStartTime % 1), defaultStartTime) + 1 : defaultStartTime;
+        for (let i = startTime; i < parseFloat(availableTimeslots?.end ?? '0'); i++) {
             //  checking timeslot will exceed the endTime or not
-            if (i + 1 <= parseFloat(availableTimeslots.end)) {
+            if (i + 1 <= parseFloat(availableTimeslots?.end ?? '0')) {
                 const startTimeMins = (i % 1) * 60 === 0 ? '00' : (i % 1) * 60;
                 const startTimeText = `${Math.floor(i)}:${startTimeMins}`;
                 const endTimeMins = ((i + 1) % 1) * 60 === 0 ? '00' : ((i + 1) % 1) * 60;
@@ -191,12 +191,12 @@ const BookingForm = ({
             }
         }
         return timeslots;
-    }, [availableTimeslots]);
+    }, [availableTimeslots, date]);
 
     return (
         <StyledDialog open={isOpen} scroll="body" onClose={handleClose}>
             <StyledDialogTitle>
-                <Typography>{`Booking for Dr. ${doctorName}`}</Typography>
+                <Typography>{`Booking for Dr. ${doctorName ?? ''}`}</Typography>
                 <IconButton onClick={handleClose}>
                     <CloseIcon />
                 </IconButton>
@@ -219,14 +219,8 @@ const BookingForm = ({
                             //  reset selected timeslot
                             setTimeslot(0);
                             //  set available timeslots
-                            const timeslots = doctorAvailability?.find((opening: OpeningHour) => opening?.day === weekday) ?? [];
-                            const isToday = dayjs(new Date()).date() === newValue.date();
-                            if (isToday) {
-                                //  force getActualTimeslots when selecedDate = today 
-                                setAvailableTimeslots(getTimeslots());
-                            } else {
-                                setAvailableTimeslots(timeslots);
-                            }
+                            const timeslots = doctorAvailability?.find((opening: OpeningHour) => opening?.day === weekday) ?? null;
+                            setAvailableTimeslots(timeslots);
                         }}
                     />
                     <StyledFormControl>
