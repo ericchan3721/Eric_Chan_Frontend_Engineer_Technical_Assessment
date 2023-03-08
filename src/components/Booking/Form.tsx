@@ -179,7 +179,9 @@ const BookingForm = ({
         const today = dayjs(new Date());
         const defaultStartTime = parseFloat(availableTimeslots?.start ?? '0');
         //  if date is identical, use Max of currentHr & API startTime, since can't choose any past timeslots
-        const startTime = today.date() === date.date() ? Math.max(today.hour() + (defaultStartTime % 1), defaultStartTime) + 1 : defaultStartTime;
+        const defaultStartTimeMins = defaultStartTime % 1;
+        const remainHourToBeAdd = (today.minute() / 60 >= defaultStartTimeMins) ? 1 + defaultStartTimeMins : defaultStartTimeMins;
+        const startTime = today.date() === date.date() ? Math.max(today.hour(), defaultStartTime) + remainHourToBeAdd : defaultStartTime;
         for (let i = startTime; i < parseFloat(availableTimeslots?.end ?? '0'); i++) {
             //  checking timeslot will exceed the endTime or not
             if (i + 1 <= parseFloat(availableTimeslots?.end ?? '0')) {
